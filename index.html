@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hall of Fame — Strafenkasse</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚽</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --pitch:#0f3d2e;
+    --pitch-dark:#0a2a20;
+    --chalk:#f5f4ee;
+    --gold:#c9a227;
+    --gold-bright:#e8c34a;
+    --red:#b3402a;
+    --line:rgba(245,244,238,0.14);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(ellipse at top, rgba(255,255,255,0.05), transparent 60%),
+      repeating-linear-gradient(0deg, var(--pitch) 0 48px, var(--pitch-dark) 48px 96px);
+    color:var(--chalk);
+    font-family:'Inter',system-ui,sans-serif;
+    min-height:100vh;
+    padding: env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px) 0;
+  }
+  .wrap{max-width:760px;margin:0 auto;padding:48px 20px 80px;}
+
+  header.hero{text-align:center;margin-bottom:56px;}
+  .logo{
+    height:64px;width:auto;margin-bottom:18px;
+    filter:drop-shadow(0 4px 10px rgba(0,0,0,0.35));
+  }
+  .kicker{
+    font-family:'Inter',sans-serif;
+    font-weight:600;
+    font-size:0.8rem;
+    letter-spacing:0.14em;
+    color:var(--gold-bright);
+    margin:0 0 6px;
+  }
+  h1.title{
+    font-family:'Anton',sans-serif;
+    font-weight:400;
+    font-size:clamp(2.6rem,9vw,4.4rem);
+    line-height:0.95;
+    margin:0;
+    letter-spacing:0.01em;
+    text-shadow: 0 4px 0 rgba(0,0,0,0.25);
+  }
+  .sub{color:rgba(245,244,238,0.65);font-size:0.98rem;margin-top:14px;}
+
+  /* ---- Top-Scorer: festliche Hero-Sektion ---- */
+  #topscorer{margin-bottom:60px;}
+  .scorer-hero{
+    position:relative;
+    text-align:center;
+    padding:44px 28px 38px;
+    border-radius:6px;
+    background:
+      radial-gradient(circle at 50% 0%, rgba(232,195,74,0.22), transparent 65%),
+      linear-gradient(180deg, rgba(201,162,39,0.14), rgba(201,162,39,0.02));
+    border:1px solid var(--gold);
+    box-shadow: 0 0 0 1px rgba(232,195,74,0.08), 0 20px 50px -20px rgba(0,0,0,0.6);
+    opacity:0; transform: translateY(10px) scale(0.98);
+    animation: scorerIn 0.6s ease-out 0.1s forwards;
+  }
+  @keyframes scorerIn{ to{ opacity:1; transform:none; } }
+  .scorer-emoji-row{font-size:1.6rem;letter-spacing:0.3em;margin-bottom:6px;line-height:1;}
+  .scorer-kicker{
+    font-size:0.82rem;font-weight:700;letter-spacing:0.16em;
+    color:var(--gold-bright);margin:6px 0 4px;
+  }
+  .scorer-name{
+    font-family:'Anton',sans-serif;
+    font-size:clamp(2.2rem,10vw,3.6rem);
+    line-height:1.02;margin:4px 0 10px;
+    text-shadow:0 4px 0 rgba(0,0,0,0.25);
+  }
+  .scorer-amount{
+    font-family:'Anton',sans-serif;
+    font-size:clamp(1.6rem,6vw,2.2rem);
+    color:var(--gold-bright);
+  }
+  .scorer-tag{
+    font-size:0.85rem;color:rgba(245,244,238,0.65);margin-top:10px;
+  }
+
+  section{margin-bottom:64px;}
+  .section-head{
+    display:flex;align-items:baseline;justify-content:space-between;
+    border-bottom:2px solid var(--gold);
+    padding-bottom:10px;margin-bottom:24px;
+  }
+  h2.section-title{
+    font-family:'Anton',sans-serif;font-weight:400;
+    font-size:1.5rem;letter-spacing:0.01em;margin:0;
+  }
+  .section-note{font-size:0.78rem;color:rgba(245,244,238,0.5);}
+
+  /* ---- Top 5 scoreboard ---- */
+  #top5 .state{color:rgba(245,244,238,0.6);font-size:0.9rem;}
+
+  .rankrow{
+    display:flex;align-items:center;gap:18px;
+    padding:14px 6px;border-bottom:1px solid var(--line);
+  }
+  .rankrow:last-child{border-bottom:none;}
+  .rankrow .rank{
+    font-family:'Anton',sans-serif;font-size:1.4rem;color:rgba(245,244,238,0.45);
+    min-width:34px;text-align:center;
+  }
+  .rankrow .name{flex:1;font-weight:600;font-size:1.02rem;}
+  .rankrow .amount{font-variant-numeric:tabular-nums;font-weight:600;color:var(--gold-bright);}
+
+  /* ---- Strafenkatalog ---- */
+  .kat-group{margin-bottom:28px;}
+  .kat-group h3{
+    font-size:0.78rem;letter-spacing:0.1em;text-transform:uppercase;
+    color:var(--gold-bright);margin:0 0 10px;
+  }
+  table.kat{width:100%;border-collapse:collapse;font-size:0.92rem;}
+  table.kat th{
+    text-align:left;font-weight:600;font-size:0.75rem;
+    color:rgba(245,244,238,0.55);padding:6px 10px 8px;
+    border-bottom:1px solid var(--line);
+  }
+  table.kat td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top;}
+  table.kat tr:last-child td{border-bottom:none;}
+  table.kat td.code{font-variant-numeric:tabular-nums;color:rgba(245,244,238,0.55);white-space:nowrap;}
+  table.kat td.wert{white-space:nowrap;text-align:right;font-weight:600;font-variant-numeric:tabular-nums;}
+  table.kat td.wert.sach{color:var(--gold-bright);font-weight:500;}
+
+  footer{text-align:center;color:rgba(245,244,238,0.35);font-size:0.78rem;margin-top:40px;}
+  footer a{color:rgba(245,244,238,0.5);}
+
+  @media (max-width:480px){
+    .scorer-emoji-row{font-size:1.3rem;letter-spacing:0.2em;}
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none !important;transition:none !important;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <img class="logo" src="https://svprag.de/wp-content/uploads/2017/09/cropped-SVPrag-Logo.png" alt="SV Prag Logo" onerror="this.style.display='none'">
+    <p class="kicker">STRAFENKASSE · SAISON</p>
+    <h1 class="title">HALL OF FAME</h1>
+    <p class="sub">Die tragenden Säulen unserer Mannschaftskasse.</p>
+  </header>
+
+  <section id="topscorer">
+    <div id="topscorer-content" class="state">Lade Daten …</div>
+  </section>
+
+  <section id="top5">
+    <div class="section-head">
+      <h2 class="section-title">Top5 – Our Sponsors</h2>
+      <span class="section-note">Gesamt, aller Zeiten</span>
+    </div>
+    <div id="top5-content" class="state">Lade Daten …</div>
+  </section>
+
+  <section id="katalog">
+    <div class="section-head">
+      <h2 class="section-title">Strafenkatalog</h2>
+      <span class="section-note">Training &amp; Spieltag</span>
+    </div>
+    <div id="katalog-content" class="state">Lade Daten …</div>
+  </section>
+
+  <footer>
+    Automatisch erzeugt aus der Strafenkasse-Tabelle · <a href="SHEET_URL_PLACEHOLDER" target="_blank" rel="noopener">Google Sheet öffnen</a>
+  </footer>
+</div>
+
+<script>
+/* ======================================================================
+   KONFIGURATION — hier ggf. anpassen
+   ====================================================================== */
+const SHEET_ID = "1-cbbgYV8_N2lINu5xiN7uJHqDnFaHr0LmIB9KhxZZ18";
+const SHEET_STRAFENLISTE = "Strafenliste";   // für Top5 (alle Einzeleinträge)
+const SHEET_STAMMDATEN   = "Stammdaten";     // für den Strafenkatalog
+const KATALOG_RANGE      = "F4:K35";         // Code..Anzeige-Block im Stammdaten-Tab
+
+document.querySelectorAll('a[href="SHEET_URL_PLACEHOLDER"]').forEach(a => {
+  a.href = "https://docs.google.com/spreadsheets/d/" + SHEET_ID + "/edit";
+});
+
+/* ======================================================================
+   Kleine CSV-Hilfsfunktionen (Google gviz liefert CSV mit Quoting)
+   ====================================================================== */
+function gvizCsvUrl(sheetName, range) {
+  const base = "https://docs.google.com/spreadsheets/d/" + SHEET_ID + "/gviz/tq";
+  const params = new URLSearchParams({ tqx: "out:csv", sheet: sheetName });
+  if (range) params.set("range", range);
+  return base + "?" + params.toString();
+}
+
+function parseCsv(text) {
+  const rows = [];
+  let row = [], field = "", inQuotes = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (inQuotes) {
+      if (c === '"') {
+        if (text[i + 1] === '"') { field += '"'; i++; }
+        else inQuotes = false;
+      } else field += c;
+    } else {
+      if (c === '"') inQuotes = true;
+      else if (c === ',') { row.push(field); field = ""; }
+      else if (c === '\n' || c === '\r') {
+        if (c === '\r' && text[i + 1] === '\n') i++;
+        row.push(field); field = "";
+        if (row.length > 1 || row[0] !== "") rows.push(row);
+        row = [];
+      } else field += c;
+    }
+  }
+  if (field !== "" || row.length) { row.push(field); rows.push(row); }
+  return rows;
+}
+
+function parseAmount(raw) {
+  if (raw === undefined || raw === null) return 0;
+  const cleaned = String(raw).replace(/[^\d,.\-]/g, "").replace(",", ".");
+  const n = parseFloat(cleaned);
+  return isNaN(n) ? 0 : n;
+}
+
+function formatEuro(n) {
+  return n.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " €";
+}
+
+/* ======================================================================
+   Gemeinsame Datengrundlage: Geldstrafen-Summe je Spieler (aller Zeiten)
+   ====================================================================== */
+async function ladeGeldRanking() {
+  const res = await fetch(gvizCsvUrl(SHEET_STRAFENLISTE));
+  if (!res.ok) throw new Error("HTTP " + res.status);
+  const rows = parseCsv(await res.text());
+  // Kopfzeile: Datum | Spieler | Vorfall | Kategorie | Beschreibung | Betrag (€) | Sachleistung
+  const data = rows.slice(1);
+
+  const summen = {};
+  data.forEach(r => {
+    const spieler = (r[1] || "").trim();
+    const betrag = parseAmount(r[5]);
+    if (!spieler) return;
+    summen[spieler] = (summen[spieler] || 0) + betrag;
+  });
+
+  return Object.entries(summen)
+    .filter(([, betrag]) => betrag > 0)
+    .sort((a, b) => b[1] - a[1]);
+}
+
+/* ======================================================================
+   Top-Scorer — höchste Geldstrafen-Summe, groß & feierlich präsentiert
+   ====================================================================== */
+function renderTopScorer(ranking) {
+  const el = document.getElementById("topscorer-content");
+  if (ranking.length === 0) {
+    el.className = "state";
+    el.textContent = "Noch keine Geld-Strafen erfasst.";
+    return;
+  }
+  const [name, betrag] = ranking[0];
+  el.className = "";
+  el.innerHTML = `
+    <div class="scorer-hero">
+      <div class="scorer-emoji-row">🍾 🎉 💸 🏆 🎊</div>
+      <p class="scorer-kicker">TOP-SCORER</p>
+      <div class="scorer-name">${escapeHtml(name)}</div>
+      <div class="scorer-amount">${formatEuro(betrag)}</div>
+      <p class="scorer-tag">Größter Beitrag zur Mannschaftskasse — aller Zeiten 🤑</p>
+    </div>`;
+}
+
+/* ======================================================================
+   Top5 – Our Sponsors (schlichte Liste, Platz 1–5)
+   ====================================================================== */
+function renderTop5(ranking) {
+  const el = document.getElementById("top5-content");
+  const top5 = ranking.slice(0, 5);
+  if (top5.length === 0) {
+    el.className = "state";
+    el.textContent = "Noch keine Geld-Strafen erfasst.";
+    return;
+  }
+  let html = "";
+  top5.forEach(([name, betrag], i) => {
+    html += `
+      <div class="rankrow">
+        <div class="rank">${i + 1}</div>
+        <div class="name">${escapeHtml(name)}</div>
+        <div class="amount">${formatEuro(betrag)}</div>
+      </div>`;
+  });
+  el.className = "";
+  el.innerHTML = html;
+}
+
+async function initGeldSektionen() {
+  try {
+    const ranking = await ladeGeldRanking();
+    renderTopScorer(ranking);
+    renderTop5(ranking);
+  } catch (e) {
+    const msg = "Konnte die Daten nicht laden. Ist das Google Sheet für 'Jeder mit dem Link' freigegeben?";
+    document.getElementById("topscorer-content").textContent = msg;
+    document.getElementById("top5-content").textContent = msg;
+    console.error(e);
+  }
+}
+
+/* ======================================================================
+   Strafenkatalog
+   ====================================================================== */
+async function ladeKatalog() {
+  const el = document.getElementById("katalog-content");
+  try {
+    const res = await fetch(gvizCsvUrl(SHEET_STAMMDATEN, KATALOG_RANGE));
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const rows = parseCsv(await res.text());
+    // Spalten: Code | Kategorie | Beschreibung | Betrag (€) | Sachleistung | Anzeige
+    const data = rows.slice(1).filter(r => (r[0] || "").trim() !== "");
+
+    const gruppen = { Training: [], Spieltag: [] };
+    data.forEach(r => {
+      const code = (r[0] || "").trim();
+      const kategorie = (r[1] || "").trim();
+      let beschreibung = (r[2] || "").trim();
+      beschreibung = beschreibung.replace(/^(TR|SP)\s*-\s*/, "");
+      const betragRoh = (r[3] || "").trim();
+      const sachleistung = (r[4] || "").trim();
+      const anzeige = (r[5] || "").trim();
+      const istSachleistung = betragRoh === "" && sachleistung !== "";
+
+      const zeile = { code, beschreibung, anzeige, istSachleistung };
+      if (gruppen[kategorie]) gruppen[kategorie].push(zeile);
+    });
+
+    let html = "";
+    [["Training", "Training"], ["Spieltag", "Spieltag"]].forEach(([key, label]) => {
+      const zeilen = gruppen[key];
+      if (!zeilen || zeilen.length === 0) return;
+      html += `<div class="kat-group"><h3>${label}</h3><table class="kat">
+        <thead><tr><th>Code</th><th>Vorfall</th><th style="text-align:right">Strafe</th></tr></thead><tbody>`;
+      zeilen.forEach(z => {
+        html += `<tr>
+          <td class="code">${escapeHtml(z.code)}</td>
+          <td>${escapeHtml(z.beschreibung)}</td>
+          <td class="wert${z.istSachleistung ? " sach" : ""}">${escapeHtml(z.anzeige)}</td>
+        </tr>`;
+      });
+      html += `</tbody></table></div>`;
+    });
+
+    el.className = "";
+    el.innerHTML = html || "Keine Einträge gefunden.";
+  } catch (e) {
+    el.textContent = "Konnte die Daten nicht laden. Ist das Google Sheet für 'Jeder mit dem Link' freigegeben?";
+    console.error(e);
+  }
+}
+
+function escapeHtml(s) {
+  return String(s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+initGeldSektionen();
+ladeKatalog();
+</script>
+</body>
+</html>
