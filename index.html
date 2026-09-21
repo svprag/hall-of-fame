@@ -10,21 +10,22 @@
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --pitch:#0f3d2e;
-    --pitch-dark:#0a2a20;
-    --chalk:#f5f4ee;
-    --gold:#c9a227;
-    --gold-bright:#e8c34a;
-    --red:#b3402a;
-    --line:rgba(245,244,238,0.14);
+    --bg-deep:#1c0f28;
+    --bg-deep2:#150a1f;
+    --panel:#2f1a45;
+    --violet:#7c3aed;
+    --violet-bright:#c9a3f7;
+    --white:#f7f4fb;
+    --line:rgba(247,244,251,0.14);
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
   body{
     background:
-      radial-gradient(ellipse at top, rgba(255,255,255,0.05), transparent 60%),
-      repeating-linear-gradient(0deg, var(--pitch) 0 48px, var(--pitch-dark) 48px 96px);
-    color:var(--chalk);
+      radial-gradient(ellipse 900px 500px at 50% -5%, rgba(201,163,247,0.16), transparent 60%),
+      radial-gradient(ellipse 700px 500px at 100% 110%, rgba(124,58,237,0.18), transparent 60%),
+      var(--bg-deep2);
+    color:var(--white);
     font-family:'Inter',system-ui,sans-serif;
     min-height:100vh;
     padding: env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px) 0;
@@ -33,15 +34,15 @@
 
   header.hero{text-align:center;margin-bottom:56px;}
   .logo{
-    height:64px;width:auto;margin-bottom:18px;
-    filter:drop-shadow(0 4px 10px rgba(0,0,0,0.35));
+    height:clamp(60px,11vw,110px);width:auto;margin-bottom:20px;
+    filter:drop-shadow(0 4px 14px rgba(0,0,0,0.45));
   }
   .kicker{
     font-family:'Inter',sans-serif;
     font-weight:600;
     font-size:0.8rem;
     letter-spacing:0.14em;
-    color:var(--gold-bright);
+    color:var(--violet-bright);
     margin:0 0 6px;
   }
   h1.title{
@@ -53,7 +54,7 @@
     letter-spacing:0.01em;
     text-shadow: 0 4px 0 rgba(0,0,0,0.25);
   }
-  .sub{color:rgba(245,244,238,0.65);font-size:0.98rem;margin-top:14px;}
+  .sub{color:rgba(247,244,251,0.65);font-size:0.98rem;margin-top:18px;}
 
   /* ---- Top-Scorer: festliche Hero-Sektion ---- */
   #topscorer{margin-bottom:60px;}
@@ -61,12 +62,12 @@
     position:relative;
     text-align:center;
     padding:44px 28px 38px;
-    border-radius:6px;
+    border-radius:10px;
     background:
-      radial-gradient(circle at 50% 0%, rgba(232,195,74,0.22), transparent 65%),
-      linear-gradient(180deg, rgba(201,162,39,0.14), rgba(201,162,39,0.02));
-    border:1px solid var(--gold);
-    box-shadow: 0 0 0 1px rgba(232,195,74,0.08), 0 20px 50px -20px rgba(0,0,0,0.6);
+      radial-gradient(circle at 50% 0%, rgba(201,163,247,0.22), transparent 65%),
+      linear-gradient(180deg, rgba(124,58,237,0.20), rgba(124,58,237,0.03));
+    border:1px solid var(--violet);
+    box-shadow: 0 0 0 1px rgba(201,163,247,0.10), 0 20px 50px -20px rgba(0,0,0,0.7);
     opacity:0; transform: translateY(10px) scale(0.98);
     animation: scorerIn 0.6s ease-out 0.1s forwards;
   }
@@ -74,7 +75,7 @@
   .scorer-emoji-row{font-size:1.6rem;letter-spacing:0.3em;margin-bottom:6px;line-height:1;}
   .scorer-kicker{
     font-size:0.82rem;font-weight:700;letter-spacing:0.16em;
-    color:var(--gold-bright);margin:6px 0 4px;
+    color:var(--violet-bright);margin:6px 0 4px;
   }
   .scorer-name{
     font-family:'Anton',sans-serif;
@@ -85,22 +86,22 @@
   .scorer-amount{
     font-family:'Anton',sans-serif;
     font-size:clamp(1.6rem,6vw,2.2rem);
-    color:var(--gold-bright);
+    color:var(--violet-bright);
   }
   section{margin-bottom:64px;}
   .section-head{
     display:flex;align-items:baseline;justify-content:space-between;
-    border-bottom:2px solid var(--gold);
+    border-bottom:2px solid var(--violet);
     padding-bottom:10px;margin-bottom:24px;
   }
   h2.section-title{
     font-family:'Anton',sans-serif;font-weight:400;
     font-size:1.5rem;letter-spacing:0.01em;margin:0;
   }
-  .section-note{font-size:0.78rem;color:rgba(245,244,238,0.5);}
+  .section-note{font-size:0.78rem;color:rgba(247,244,251,0.5);}
 
   /* ---- Top 5 scoreboard ---- */
-  #top5 .state{color:rgba(245,244,238,0.6);font-size:0.9rem;}
+  #top5 .state{color:rgba(247,244,251,0.6);font-size:0.9rem;}
 
   .rankrow{
     display:flex;align-items:center;gap:18px;
@@ -108,32 +109,32 @@
   }
   .rankrow:last-child{border-bottom:none;}
   .rankrow .rank{
-    font-family:'Anton',sans-serif;font-size:1.4rem;color:rgba(245,244,238,0.45);
+    font-family:'Anton',sans-serif;font-size:1.4rem;color:rgba(247,244,251,0.45);
     min-width:34px;text-align:center;
   }
   .rankrow .name{flex:1;font-weight:600;font-size:1.02rem;}
-  .rankrow .amount{font-variant-numeric:tabular-nums;font-weight:600;color:var(--gold-bright);}
+  .rankrow .amount{font-variant-numeric:tabular-nums;font-weight:600;color:var(--violet-bright);}
 
   /* ---- Strafenkatalog ---- */
   .kat-group{margin-bottom:28px;}
   .kat-group h3{
     font-size:0.78rem;letter-spacing:0.1em;text-transform:uppercase;
-    color:var(--gold-bright);margin:0 0 10px;
+    color:var(--violet-bright);margin:0 0 10px;
   }
   table.kat{width:100%;border-collapse:collapse;font-size:0.92rem;}
   table.kat th{
     text-align:left;font-weight:600;font-size:0.75rem;
-    color:rgba(245,244,238,0.55);padding:6px 10px 8px;
+    color:rgba(247,244,251,0.55);padding:6px 10px 8px;
     border-bottom:1px solid var(--line);
   }
   table.kat td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top;}
   table.kat tr:last-child td{border-bottom:none;}
-  table.kat td.code{font-variant-numeric:tabular-nums;color:rgba(245,244,238,0.55);white-space:nowrap;}
+  table.kat td.code{font-variant-numeric:tabular-nums;color:rgba(247,244,251,0.55);white-space:nowrap;}
   table.kat td.wert{white-space:nowrap;text-align:right;font-weight:600;font-variant-numeric:tabular-nums;}
-  table.kat td.wert.sach{color:var(--gold-bright);font-weight:500;}
+  table.kat td.wert.sach{color:var(--violet-bright);font-weight:500;}
 
-  footer{text-align:center;color:rgba(245,244,238,0.35);font-size:0.78rem;margin-top:40px;}
-  footer a{color:rgba(245,244,238,0.5);}
+  footer{text-align:center;color:rgba(247,244,251,0.35);font-size:0.78rem;margin-top:40px;}
+  footer a{color:rgba(247,244,251,0.5);}
 
   @media (max-width:480px){
     .scorer-emoji-row{font-size:1.3rem;letter-spacing:0.2em;}
@@ -164,20 +165,20 @@
     <div id="top5-content" class="state">Lade Daten …</div>
   </section>
 
-  <section id="katalog">
-    <div class="section-head">
-      <h2 class="section-title">Strafenkatalog</h2>
-      <span class="section-note">Training &amp; Spieltag</span>
-    </div>
-    <div id="katalog-content" class="state">Lade Daten …</div>
-  </section>
-
   <section id="genussmittel">
     <div class="section-head">
       <h2 class="section-title">Genussmittel</h2>
       <span class="section-note">Noch offen</span>
     </div>
     <div id="genussmittel-content" class="state">Lade Daten …</div>
+  </section>
+
+  <section id="katalog">
+    <div class="section-head">
+      <h2 class="section-title">Strafenkatalog</h2>
+      <span class="section-note">Training &amp; Spieltag</span>
+    </div>
+    <div id="katalog-content" class="state">Lade Daten …</div>
   </section>
 
   <footer>
@@ -435,8 +436,8 @@ function escapeHtml(s) {
 }
 
 initGeldSektionen();
-ladeKatalog();
 ladeGenussmittel();
+ladeKatalog();
 </script>
 </body>
 </html>
