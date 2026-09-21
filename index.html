@@ -87,10 +87,6 @@
     font-size:clamp(1.6rem,6vw,2.2rem);
     color:var(--gold-bright);
   }
-  .scorer-tag{
-    font-size:0.85rem;color:rgba(245,244,238,0.65);margin-top:10px;
-  }
-
   section{margin-bottom:64px;}
   .section-head{
     display:flex;align-items:baseline;justify-content:space-between;
@@ -152,7 +148,7 @@
 
   <header class="hero">
     <img class="logo" src="https://svprag.de/wp-content/uploads/2017/09/cropped-SVPrag-Logo.png" alt="SV Prag Logo" onerror="this.style.display='none'">
-    <p class="kicker">STRAFENKASSE · SAISON</p>
+    <p class="kicker">MANNSCHAFTSKASSE</p>
     <h1 class="title">HALL OF FAME</h1>
     <p class="sub">Die tragenden Säulen unserer Mannschaftskasse.</p>
   </header>
@@ -164,7 +160,6 @@
   <section id="top5">
     <div class="section-head">
       <h2 class="section-title">Top5 – Our Sponsors</h2>
-      <span class="section-note">Gesamt, aller Zeiten</span>
     </div>
     <div id="top5-content" class="state">Lade Daten …</div>
   </section>
@@ -177,8 +172,16 @@
     <div id="katalog-content" class="state">Lade Daten …</div>
   </section>
 
+  <section id="genussmittel">
+    <div class="section-head">
+      <h2 class="section-title">Genussmittel</h2>
+      <span class="section-note">Noch offen</span>
+    </div>
+    <div id="genussmittel-content" class="state">Lade Daten …</div>
+  </section>
+
   <footer>
-    Automatisch erzeugt aus der Strafenkasse-Tabelle · <a href="SHEET_URL_PLACEHOLDER" target="_blank" rel="noopener">Google Sheet öffnen</a>
+    Automatisch erzeugt aus der Mannschaftskasse-Tabelle
   </footer>
 </div>
 
@@ -186,14 +189,12 @@
 /* ======================================================================
    KONFIGURATION — hier ggf. anpassen
    ====================================================================== */
-const SHEET_ID = "1-cbbgYV8_N2lINu5xiN7uJHqDnFaHr0LmIB9KhxZZ18";
+const SHEET_ID = atob("MS1jYmJnWVY4X04ybElOdTV4aU43dUpIcURuRmFIcjBMbUlCOUtoeFpaMTg=");
 const SHEET_STRAFENLISTE = "Strafenliste";   // für Top5 (alle Einzeleinträge)
 const SHEET_STAMMDATEN   = "Stammdaten";     // für den Strafenkatalog
+const SHEET_SACHLEISTUNGEN = "Sachleistungen"; // für Genussmittel
 const KATALOG_RANGE      = "F4:K35";         // Code..Anzeige-Block im Stammdaten-Tab
-
-document.querySelectorAll('a[href="SHEET_URL_PLACEHOLDER"]').forEach(a => {
-  a.href = "https://docs.google.com/spreadsheets/d/" + SHEET_ID + "/edit";
-});
+const SACHLEISTUNGEN_RANGE = "A6:K36";       // Spieler..Materialdienst-Block
 
 /* ======================================================================
    Kleine CSV-Hilfsfunktionen (Google gviz liefert CSV mit Quoting)
@@ -282,7 +283,6 @@ function renderTopScorer(ranking) {
       <p class="scorer-kicker">TOP-SCORER</p>
       <div class="scorer-name">${escapeHtml(name)}</div>
       <div class="scorer-amount">${formatEuro(betrag)}</div>
-      <p class="scorer-tag">Größter Beitrag zur Mannschaftskasse — aller Zeiten 🤑</p>
     </div>`;
 }
 
@@ -337,7 +337,6 @@ async function ladeKatalog() {
 
     const gruppen = { Training: [], Spieltag: [] };
     data.forEach(r => {
-      const code = (r[0] || "").trim();
       const kategorie = (r[1] || "").trim();
       let beschreibung = (r[2] || "").trim();
       beschreibung = beschreibung.replace(/^(TR|SP)\s*-\s*/, "");
@@ -346,7 +345,7 @@ async function ladeKatalog() {
       const anzeige = (r[5] || "").trim();
       const istSachleistung = betragRoh === "" && sachleistung !== "";
 
-      const zeile = { code, beschreibung, anzeige, istSachleistung };
+      const zeile = { beschreibung, anzeige, istSachleistung };
       if (gruppen[kategorie]) gruppen[kategorie].push(zeile);
     });
 
@@ -355,10 +354,9 @@ async function ladeKatalog() {
       const zeilen = gruppen[key];
       if (!zeilen || zeilen.length === 0) return;
       html += `<div class="kat-group"><h3>${label}</h3><table class="kat">
-        <thead><tr><th>Code</th><th>Vorfall</th><th style="text-align:right">Strafe</th></tr></thead><tbody>`;
+        <thead><tr><th>Vorfall</th><th style="text-align:right">Strafe</th></tr></thead><tbody>`;
       zeilen.forEach(z => {
         html += `<tr>
-          <td class="code">${escapeHtml(z.code)}</td>
           <td>${escapeHtml(z.beschreibung)}</td>
           <td class="wert${z.istSachleistung ? " sach" : ""}">${escapeHtml(z.anzeige)}</td>
         </tr>`;
@@ -368,6 +366,60 @@ async function ladeKatalog() {
 
     el.className = "";
     el.innerHTML = html || "Keine Einträge gefunden.";
+  } catch (e) {
+    el.textContent = "Konnte die Daten nicht laden. Ist das Google Sheet für 'Jeder mit dem Link' freigegeben?";
+    console.error(e);
+  }
+}
+
+/* ======================================================================
+   Genussmittel — wer hat noch Kästen/Schachteln offen (Sachleistungen-Tab)
+   ====================================================================== */
+async function ladeGenussmittel() {
+  const el = document.getElementById("genussmittel-content");
+  try {
+    const res = await fetch(gvizCsvUrl(SHEET_SACHLEISTUNGEN, SACHLEISTUNGEN_RANGE));
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const rows = parseCsv(await res.text());
+    // Spalten (A..K): Spieler | Kasten | erledigt | Verpflegung Spieltag | erledigt |
+    //                 Wochendienst | erledigt | Schachtel | erledigt | Materialdienst | erledigt
+    const data = rows.slice(1).filter(r => (r[0] || "").trim() !== "");
+
+    const kategorien = [
+      { label: "Kästen", icon: "🍺", countIdx: 1, erledigtIdx: 2 },
+      { label: "Schachteln", icon: "🚬", countIdx: 7, erledigtIdx: 8 }
+    ];
+
+    let html = "";
+    let gesamtOffen = 0;
+
+    kategorien.forEach(kat => {
+      const offenListe = [];
+      data.forEach(r => {
+        const spieler = (r[0] || "").trim();
+        const anzahl = parseAmount(r[kat.countIdx]);
+        const erledigt = parseAmount(r[kat.erledigtIdx]);
+        const offen = anzahl - erledigt;
+        if (spieler && offen > 0) offenListe.push([spieler, offen]);
+      });
+      if (offenListe.length === 0) return;
+      offenListe.sort((a, b) => b[1] - a[1]);
+      gesamtOffen += offenListe.length;
+
+      html += `<div class="kat-group"><h3>${kat.icon} ${kat.label}</h3>`;
+      offenListe.forEach(([name, offen]) => {
+        html += `
+          <div class="rankrow">
+            <div class="rank">${kat.icon}</div>
+            <div class="name">${escapeHtml(name)}</div>
+            <div class="amount">${offen}x offen</div>
+          </div>`;
+      });
+      html += `</div>`;
+    });
+
+    el.className = "";
+    el.innerHTML = gesamtOffen > 0 ? html : "Alle Konten sind beglichen! 🎉";
   } catch (e) {
     el.textContent = "Konnte die Daten nicht laden. Ist das Google Sheet für 'Jeder mit dem Link' freigegeben?";
     console.error(e);
@@ -384,6 +436,7 @@ function escapeHtml(s) {
 
 initGeldSektionen();
 ladeKatalog();
+ladeGenussmittel();
 </script>
 </body>
 </html>
