@@ -77,18 +77,23 @@
     font-size:0.82rem;font-weight:700;letter-spacing:0.16em;
     color:var(--violet-bright);margin:6px 0 4px;
   }
-  .scorer-photo{
-    display:block;
-    width:132px;height:132px;
-    object-fit:cover;
-    object-position:center top;
+  .scorer-photo-wrap{
+    width:156px;height:156px;
     border-radius:50%;
     margin:14px auto 12px;
+    background:linear-gradient(160deg, rgba(124,58,237,0.4), rgba(124,58,237,0.12));
     border:4px solid var(--white);
     box-shadow:
       0 0 0 4px var(--violet-bright),
       0 0 0 7px rgba(124,58,237,0.35),
       0 14px 30px -10px rgba(0,0,0,0.7);
+    display:flex;align-items:center;justify-content:center;
+    overflow:hidden;
+  }
+  .scorer-photo{
+    width:100%;height:100%;
+    object-fit:contain;
+    object-position:center center;
   }
   .scorer-name{
     font-family:'Anton',sans-serif;
@@ -299,7 +304,7 @@ function renderTopScorer(ranking) {
   const [name, betrag] = ranking[0];
   const fotoUrl = TOP_SCORER_FOTOS[name];
   const fotoHtml = fotoUrl
-    ? `<img class="scorer-photo" src="${fotoUrl}" alt="Foto von ${escapeHtml(name)}" onerror="this.style.display='none'">`
+    ? `<div class="scorer-photo-wrap"><img class="scorer-photo" src="${fotoUrl}" alt="Foto von ${escapeHtml(name)}" onerror="this.parentElement.style.display='none'"></div>`
     : "";
   el.className = "";
   el.innerHTML = `
