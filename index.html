@@ -135,6 +135,24 @@
 
   /* ---- Strafenkatalog ---- */
   .kat-group{margin-bottom:28px;}
+
+  .paypal-cta{text-align:center;margin-top:22px;}
+  .paypal-cta a{
+    display:inline-block;
+    padding:12px 26px;
+    background:linear-gradient(135deg, var(--violet), #5b21b6);
+    color:var(--white);
+    font-weight:700;
+    font-size:0.95rem;
+    text-decoration:none;
+    border-radius:999px;
+    box-shadow:0 10px 24px -8px rgba(124,58,237,0.6);
+    transition:transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .paypal-cta a:hover{
+    transform:translateY(-1px);
+    box-shadow:0 14px 28px -8px rgba(124,58,237,0.75);
+  }
   .kat-group h3{
     font-size:0.78rem;letter-spacing:0.1em;text-transform:uppercase;
     color:var(--violet-bright);margin:0 0 10px;
@@ -178,9 +196,20 @@
 
   <section id="top5">
     <div class="section-head">
-      <h2 class="section-title">Top5 – Our Sponsors</h2>
+      <h2 class="section-title">Top 5 – Unsere Gönner</h2>
     </div>
     <div id="top5-content" class="state">Lade Daten …</div>
+  </section>
+
+  <section id="abrechnung">
+    <div class="section-head">
+      <h2 class="section-title">Aktuelle Abrechnung – offene Beträge</h2>
+      <span class="section-note" id="abrechnung-zeitraum"></span>
+    </div>
+    <div id="abrechnung-content" class="state">Lade Daten …</div>
+    <div class="paypal-cta">
+      <a href="https://www.paypal.com/paypalme/svpragkasse" target="_blank" rel="noopener">💳 Jetzt per PayPal bezahlen</a>
+    </div>
   </section>
 
   <section id="genussmittel">
@@ -212,7 +241,9 @@ const SHEET_ID = atob("MS1jYmJnWVY4X04ybElOdTV4aU43dUpIcURuRmFIcjBMbUlCOUtoeFpaM
 const SHEET_STRAFENLISTE = "Strafenliste";   // für Top5 (alle Einzeleinträge)
 const SHEET_STAMMDATEN   = "Stammdaten";     // für den Strafenkatalog
 const SHEET_SACHLEISTUNGEN = "Sachleistungen"; // für Genussmittel
+const SHEET_AKTUELLE_ABRECHNUNG = "Aktuelle-Abrechnung"; // für offene Beträge
 const KATALOG_RANGE      = "F4:K35";         // Code..Anzeige-Block im Stammdaten-Tab
+const ABRECHNUNG_RANGE   = "A6:E50";         // Spieler..bezahlt-Block (großzügig bemessen)
 const SACHLEISTUNGEN_RANGE = "A6:K36";       // Spieler..Materialdienst-Block
 
 /* ======================================================================
@@ -355,6 +386,55 @@ async function initGeldSektionen() {
 }
 
 /* ======================================================================
+   Aktuelle Abrechnung — offene Beträge (Tab "Aktuelle-Abrechnung")
+   ====================================================================== */
+async function ladeAktuelleAbrechnung() {
+  const el = document.getElementById("abrechnung-content");
+  const zeitraumEl = document.getElementById("abrechnung-zeitraum");
+  try {
+    const res = await fetch(gvizCsvUrl(SHEET_AKTUELLE_ABRECHNUNG, ABRECHNUNG_RANGE));
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const rows = parseCsv(await res.text());
+    // Spalten (A..E): Spieler | Summe Geld-Strafen (Zeitraum) | Pauschale | Summe | bezahlt
+    const data = rows.slice(1).filter(r => {
+      const spieler = (r[0] || "").trim();
+      if (spieler === "" || spieler.toUpperCase() === "GESAMT") return false;
+      if (spieler.toLowerCase().includes("paypal")) return false;
+      return true;
+    });
+
+    const offen = data
+      .filter(r => (r[4] || "").trim() === "")
+      .map(r => [(r[0] || "").trim(), parseAmount(r[3])])
+      .filter(([name]) => name !== "")
+      .sort((a, b) => a[0].localeCompare(b[0], "de"));
+
+    zeitraumEl.textContent = "";
+
+    if (offen.length === 0) {
+      el.className = "state";
+      el.textContent = "Alle offenen Beträge sind beglichen! 🎉";
+      return;
+    }
+
+    let html = "";
+    offen.forEach(([name, betrag]) => {
+      html += `
+        <div class="rankrow">
+          <div class="rank">💸</div>
+          <div class="name">${escapeHtml(name)}</div>
+          <div class="amount">${formatEuro(betrag)}</div>
+        </div>`;
+    });
+    el.className = "";
+    el.innerHTML = html;
+  } catch (e) {
+    el.textContent = "Konnte die Daten nicht laden. Existiert der Tab 'Aktuelle-Abrechnung' bereits?";
+    console.error(e);
+  }
+}
+
+/* ======================================================================
    Strafenkatalog
    ====================================================================== */
 async function ladeKatalog() {
@@ -466,6 +546,7 @@ function escapeHtml(s) {
 }
 
 initGeldSektionen();
+ladeAktuelleAbrechnung();
 ladeGenussmittel();
 ladeKatalog();
 </script>
