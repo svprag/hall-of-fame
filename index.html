@@ -196,7 +196,7 @@
 
   <section id="top5">
     <div class="section-head">
-      <h2 class="section-title">Top 5 – Unsere Gönner der Saison 26/27</h2>
+      <h2 class="section-title">Top 5 – Unsere Gönner</h2>
     </div>
     <div id="top5-content" class="state">Lade Daten …</div>
   </section>
@@ -398,7 +398,9 @@ async function ladeAktuelleAbrechnung() {
     // Spalten (A..E): Spieler | Summe Geld-Strafen (Zeitraum) | Pauschale | Summe | bezahlt
     const data = rows.slice(1).filter(r => {
       const spieler = (r[0] || "").trim();
-      return spieler !== "" && spieler.toUpperCase() !== "GESAMT";
+      if (spieler === "" || spieler.toUpperCase() === "GESAMT") return false;
+      if (spieler.toLowerCase().includes("paypal")) return false;
+      return true;
     });
 
     const offen = data
@@ -419,7 +421,7 @@ async function ladeAktuelleAbrechnung() {
     offen.forEach(([name, betrag]) => {
       html += `
         <div class="rankrow">
-          <div class="rank">💶</div>
+          <div class="rank">💸</div>
           <div class="name">${escapeHtml(name)}</div>
           <div class="amount">${formatEuro(betrag)}</div>
         </div>`;
